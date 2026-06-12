@@ -340,52 +340,128 @@ with aba4:
 
 # Aba Resumo Atual
 with aba5:
-    st.header("📄 Resumo Atual (Tempo Real)")
-    st.info("Este é o resumo dos dados preenchidos agora na aba 'Cadastro'. Use o botão no canto superior direito da caixa abaixo para copiar.")
+    st.header("📄 Resumo Atual")
+    st.info("Resumo dos dados da atividade atual. Se o formulário estiver limpo, mostra o último registro salvo.")
     
+    form_preenchido = any([descricao_falha, acao_corretiva, etiqueta, serial, galpao, room_setor, solicitante])
+    
+    if form_preenchido:
+        resumo_descricao_falha = descricao_falha
+        resumo_room_setor = room_setor
+        resumo_galpao = galpao
+        resumo_etiqueta = etiqueta
+        resumo_serial = serial
+        resumo_solicitante = solicitante
+        resumo_acao_corretiva = acao_corretiva
+        resumo_equipamento_substituido = equipamento_substituido
+        resumo_rec_modelo = rec_modelo
+        resumo_rec_florr = rec_florr
+        resumo_rec_room = rec_room
+        resumo_rec_estado = rec_estado
+        resumo_rec_substato = rec_substato
+        resumo_eq_serial = eq_serial
+        resumo_eq_item_config = eq_item_config
+        resumo_eq_modelo = eq_modelo
+        resumo_eq_florr = eq_florr
+        resumo_eq_room = eq_room
+        resumo_eq_ip = eq_ip
+        resumo_eq_estado = eq_estado
+        resumo_eq_substato = eq_substato
+        resumo_eq_funcao = eq_funcao
+        resumo_eq_aplicacao = eq_aplicacao
+    elif atividades:
+        ultima = atividades[-1]
+        resumo_descricao_falha = ultima.get("Descrição da falha", "")
+        resumo_room_setor = ultima.get("Room/Setor", "")
+        resumo_galpao = ultima.get("Galpão", "")
+        resumo_etiqueta = ultima.get("Etiqueta", "")
+        resumo_serial = ultima.get("Serial", "")
+        resumo_solicitante = ultima.get("Solicitante", "")
+        resumo_acao_corretiva = ultima.get("Ação corretiva", "")
+        resumo_equipamento_substituido = ultima.get("Equipamento substituído", False)
+        resumo_rec_modelo = ultima.get("Rec Modelo", "")
+        resumo_rec_florr = ultima.get("Rec Florr", "")
+        resumo_rec_room = ultima.get("Rec Room", "")
+        resumo_rec_estado = ultima.get("Rec Estado", "")
+        resumo_rec_substato = ultima.get("Rec Substato", "")
+        resumo_eq_serial = ultima.get("Eq Serial", "")
+        resumo_eq_item_config = ultima.get("Eq Item Config", "")
+        resumo_eq_modelo = ultima.get("Eq Modelo", "")
+        resumo_eq_florr = ultima.get("Eq Florr", "")
+        resumo_eq_room = ultima.get("Eq Room", "")
+        resumo_eq_ip = ultima.get("Eq IP", "")
+        resumo_eq_estado = ultima.get("Eq Estado", "")
+        resumo_eq_substato = ultima.get("Eq Substato", "")
+        resumo_eq_funcao = ultima.get("Eq Função", "")
+        resumo_eq_aplicacao = ultima.get("Eq Aplicação", "")
+    else:
+        resumo_descricao_falha = ""
+        resumo_room_setor = ""
+        resumo_galpao = ""
+        resumo_etiqueta = ""
+        resumo_serial = ""
+        resumo_solicitante = ""
+        resumo_acao_corretiva = ""
+        resumo_equipamento_substituido = False
+        resumo_rec_modelo = ""
+        resumo_rec_florr = ""
+        resumo_rec_room = ""
+        resumo_rec_estado = ""
+        resumo_rec_substato = ""
+        resumo_eq_serial = ""
+        resumo_eq_item_config = ""
+        resumo_eq_modelo = ""
+        resumo_eq_florr = ""
+        resumo_eq_room = ""
+        resumo_eq_ip = ""
+        resumo_eq_estado = ""
+        resumo_eq_substato = ""
+        resumo_eq_funcao = ""
+        resumo_eq_aplicacao = ""
+
     texto_resumo = f"""ABERTURA
-DESCRIÇÃO: {descricao_falha}
-SETOR: {room_setor}
-GALPÃO: {galpao}
+DESCRIÇÃO: {resumo_descricao_falha}
+SETOR: {resumo_room_setor}
+GALPÃO: {resumo_galpao}
 CELULAR: (31)9 95426967
-ETIQUETA STELLANTIS: {etiqueta}
-SERIAL NUMBER: {serial}
-SOLICITANTE: {solicitante}
+ETIQUETA STELLANTIS: {resumo_etiqueta}
+SERIAL NUMBER: {resumo_serial}
+SOLICITANTE: {resumo_solicitante}
 
 ENCERRAMENTO
-FALHA: {descricao_falha}
-AÇÃO CORRETIVA: {acao_corretiva}
-LOCALIZAÇÃO: {galpao} - {room_setor}
-ETIQUETA STELLANTIS: {etiqueta}
-SERIAL NUMBER: {serial}
+FALHA: {resumo_descricao_falha}
+AÇÃO CORRETIVA: {resumo_acao_corretiva}
+LOCALIZAÇÃO: {resumo_galpao} - {resumo_room_setor}
+ETIQUETA STELLANTIS: {resumo_etiqueta}
+SERIAL NUMBER: {resumo_serial}
 """
 
-    if equipamento_substituido:
+    if resumo_equipamento_substituido:
         texto_resumo += f"""
 Equipamento Recolhido
-SERIAL: {serial}
-ITEM DE CONFIGURAÇÃO: {etiqueta}
-ETIQUETA: {etiqueta}
-MODELO: {rec_modelo}
-FLOOR: {rec_florr}
-ROOM: {rec_room}
+SERIAL: {resumo_serial}
+ITEM DE CONFIGURAÇÃO: {resumo_etiqueta}
+ETIQUETA: {resumo_etiqueta}
+MODELO: {resumo_rec_modelo}
+FLOOR: {resumo_rec_florr}
+ROOM: {resumo_rec_room}
 IP: 
-ESTADO: {rec_estado}
-SUBESTADO: {rec_substato}
+ESTADO: {resumo_rec_estado}
+SUBESTADO: {resumo_rec_substato}
 FUNÇÃO: 
 
 Equipamento Instalado
-SERIAL: {eq_serial}
-ITEM DE CONFIGURAÇÃO: {eq_item_config}
-ETIQUETA: {eq_item_config}
-MODELO: {eq_modelo}
-FLOOR: {eq_florr}
-ROOM: {eq_room}
-IP: {eq_ip}
-ESTADO: {eq_estado}
-SUBESTADO: {eq_substato}
-FUNÇÃO: {eq_funcao}
-APLICAÇÃO: {eq_aplicacao}
+SERIAL: {resumo_eq_serial}
+ITEM DE CONFIGURAÇÃO: {resumo_eq_item_config}
+ETIQUETA: {resumo_eq_item_config}
+MODELO: {resumo_eq_modelo}
+FLOOR: {resumo_eq_florr}
+ROOM: {resumo_eq_room}
+IP: {resumo_eq_ip}
+ESTADO: {resumo_eq_estado}
+SUBESTADO: {resumo_eq_substato}
+FUNÇÃO: {resumo_eq_funcao}
+APLICAÇÃO: {resumo_eq_aplicacao}
 """
     
     st.code(texto_resumo, language="text")
