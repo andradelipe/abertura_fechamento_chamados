@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from st_keyup import st_keyup
+from datetime import datetime
 
 @st.cache_data
 def load_hardware_data():
@@ -167,6 +168,7 @@ with aba1:
         registrar = st.button("🚀 Registrar Atividade", use_container_width=True)
 
     if registrar:
+        data_atual = datetime.now().strftime("%d/%m/%Y")
         atividades.append({
             "Descrição da falha": descricao_falha,
             "Ação corretiva": acao_corretiva,
@@ -176,6 +178,7 @@ with aba1:
             "Room/Setor": room_setor,
             "Solicitante": solicitante,
             "Equipamento substituído": equipamento_substituido,
+            "Data": data_atual,
             "Eq Serial": eq_serial,
             "Eq IP": eq_ip,
             "Eq Item Config": eq_item_config,
@@ -201,13 +204,59 @@ with aba1:
 with aba2:
     st.header("📋 Registros")
     if atividades:
-        df = pd.DataFrame(atividades)
-        st.dataframe(df, use_container_width=True)
+        registros_formatados = []
+        for a in atividades:
+            registros_formatados.append({
+                "DESCRIÇÃO DA FALHA": a.get("Descrição da falha", ""),
+                "AÇÃO CORRETIVA": a.get("Ação corretiva", ""),
+                "SETOR": a.get("Room/Setor", ""),
+                "GALPÃO / COLUNA": a.get("Galpão", ""),
+                "CELULAR": "(31)9 95426967",
+                "ETIQUETA STELLANTIS": a.get("Etiqueta", ""),
+                "SERIAL NUMBER": a.get("Serial", ""),
+                "DATA": a.get("Data", datetime.now().strftime("%d/%m/%Y")),
+                "CHAMADO": a.get("Chamado", "")
+            })
+            
+        df = pd.DataFrame(registros_formatados)
+        st.write("💡 Você pode editar a tabela abaixo diretamente (ex: adicionar o CHAMADO) clicando nas células:")
+        edited_df = st.data_editor(df, use_container_width=True, key="editor_registros")
 
-        with st.expander("📋 Mostrar texto para Copiar Todos"):
-            texto = "\n\n".join([str(a) for a in atividades])
-            st.info("Passe o mouse sobre o bloco abaixo e clique no ícone de copiar no canto superior direito.")
-            st.code(texto, language="text")
+        edited_df = edited_df.fillna("")
+
+        # Salva as edições de volta na lista atividades para não perder ao recarregar a tela
+        for i, row in edited_df.iterrows():
+            if i < len(atividades):
+                atividades[i]["Descrição da falha"] = row["DESCRIÇÃO DA FALHA"]
+                atividades[i]["Ação corretiva"] = row["AÇÃO CORRETIVA"]
+                atividades[i]["Room/Setor"] = row["SETOR"]
+                atividades[i]["Galpão"] = row["GALPÃO / COLUNA"]
+                atividades[i]["Etiqueta"] = row["ETIQUETA STELLANTIS"]
+                atividades[i]["Serial"] = row["SERIAL NUMBER"]
+                atividades[i]["Data"] = row["DATA"]
+                atividades[i]["Chamado"] = row["CHAMADO"]
+
+        # Atualiza a lista de dicionários com os valores editados para usar nos blocos de cópia
+        edited_registros = edited_df.to_dict('records')
+
+        with st.expander("📋 Copiar Todos"):
+            textos = []
+            for r in edited_registros:
+                texto_item = (
+                    f"DESCRIÇÃO DA FALHA: {r['DESCRIÇÃO DA FALHA']}\n"
+                    f"AÇÃO CORRETIVA: {r['AÇÃO CORRETIVA']}\n"
+                    f"SETOR: {r['SETOR']}\n"
+                    f"GALPÃO / COLUNA: {r['GALPÃO / COLUNA']}\n"
+                    f"CELULAR: {r['CELULAR']}\n"
+                    f"ETIQUETA STELLANTIS: {r['ETIQUETA STELLANTIS']}\n"
+                    f"SERIAL NUMBER: {r['SERIAL NUMBER']}\n"
+                    f"DATA: {r['DATA']}\n"
+                    f"CHAMADO: {r['CHAMADO']}"
+                )
+                textos.append(texto_item)
+            
+            st.info("Passe o mouse sobre o bloco abaixo e clique no ícone de copiar.")
+            st.code("\n\n----------------------------------------\n\n".join(textos), language="text")
 
         if st.button("🗑️ Limpar registros"):
             atividades.clear()
@@ -217,13 +266,25 @@ with aba2:
         st.subheader("Gerenciar individualmente")
         for i, a in enumerate(atividades):
             col1, col2 = st.columns([4, 1])
-            col1.write(f"{a['Descrição da falha']} - {a['Solicitante']}")
+            col1.write(f"{a.get('Descrição da falha', '')} - {a.get('Solicitante', '')}")
             if col2.button("🗑️ Apagar", key=f"del{i}"):
                 atividades.pop(i)
                 st.warning(f"Registro {i+1} apagado!")
                 st.rerun()
             with st.expander(f"📋 Mostrar texto para copiar (Registro {i+1})"):
-                st.code(str(a), language="text")
+                r = edited_registros[i]
+                texto_item = (
+                    f"DESCRIÇÃO DA FALHA: {r['DESCRIÇÃO DA FALHA']}\n"
+                    f"AÇÃO CORRETIVA: {r['AÇÃO CORRETIVA']}\n"
+                    f"SETOR: {r['SETOR']}\n"
+                    f"GALPÃO / COLUNA: {r['GALPÃO / COLUNA']}\n"
+                    f"CELULAR: {r['CELULAR']}\n"
+                    f"ETIQUETA STELLANTIS: {r['ETIQUETA STELLANTIS']}\n"
+                    f"SERIAL NUMBER: {r['SERIAL NUMBER']}\n"
+                    f"DATA: {r['DATA']}\n"
+                    f"CHAMADO: {r['CHAMADO']}"
+                )
+                st.code(texto_item, language="text")
     else:
         st.info("Nenhum registro ainda.")
 
@@ -285,7 +346,7 @@ with aba5:
     texto_resumo = f"""ABERTURA
 DESCRIÇÃO: {descricao_falha}
 SETOR: {room_setor}
-GALPÃO e Coluna: {galpao}
+GALPÃO: {galpao}
 CELULAR: (31)9 95426967
 ETIQUETA STELLANTIS: {etiqueta}
 SERIAL NUMBER: {serial}
