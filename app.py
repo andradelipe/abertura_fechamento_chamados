@@ -83,7 +83,7 @@ with aba1:
         acao_corretiva = st.text_area("Ação Corretiva", key=f"acao_{fk}", height=100)
         df_host = load_hardware_data()
         
-        etiqueta = st.text_input("Etiqueta Stellantis (CI)", key=f"etiq_{fk}")
+        etiqueta = st.text_input("Etiiqueta Stellantis (CI)", key=f"etiq_{fk}")
         
         if 'last_etiqueta' not in st.session_state:
             st.session_state.last_etiqueta = ""
