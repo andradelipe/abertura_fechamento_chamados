@@ -1,7 +1,5 @@
-
 import streamlit as st
 import pandas as pd
-import pyperclip  # pip install pyperclip
 from st_keyup import st_keyup
 
 @st.cache_data
@@ -206,10 +204,10 @@ with aba2:
         df = pd.DataFrame(atividades)
         st.dataframe(df, use_container_width=True)
 
-        if st.button("📋 Copiar todos"):
-            texto = "\n".join([str(a) for a in atividades])
-            pyperclip.copy(texto)
-            st.success("Todos os registros copiados!")
+        with st.expander("📋 Mostrar texto para Copiar Todos"):
+            texto = "\n\n".join([str(a) for a in atividades])
+            st.info("Passe o mouse sobre o bloco abaixo e clique no ícone de copiar no canto superior direito.")
+            st.code(texto, language="text")
 
         if st.button("🗑️ Limpar registros"):
             atividades.clear()
@@ -218,15 +216,14 @@ with aba2:
 
         st.subheader("Gerenciar individualmente")
         for i, a in enumerate(atividades):
-            col1, col2, col3 = st.columns([3,1,1])
+            col1, col2 = st.columns([4, 1])
             col1.write(f"{a['Descrição da falha']} - {a['Solicitante']}")
-            if col2.button("📋 Copiar", key=f"copy{i}"):
-                pyperclip.copy(str(a))
-                st.success(f"Registro {i+1} copiado!")
-            if col3.button("🗑️ Apagar", key=f"del{i}"):
+            if col2.button("🗑️ Apagar", key=f"del{i}"):
                 atividades.pop(i)
                 st.warning(f"Registro {i+1} apagado!")
                 st.rerun()
+            with st.expander(f"📋 Mostrar texto para copiar (Registro {i+1})"):
+                st.code(str(a), language="text")
     else:
         st.info("Nenhum registro ainda.")
 
